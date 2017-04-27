@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Cqrs - Event Sourcing</title>
+  <link href="./CQRS-ES/css" rel="stylesheet" type="text/css">
+  <link href="./CQRS-ES/css(1)" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="./CQRS-ES/reset.css">
+  <link rel="stylesheet" href="./CQRS-ES/main.css">
+  <link rel="stylesheet" href="./CQRS-ES/zenburn.css">
+  <base href="." target="_blank">
+</head>
+
+<body class=" ready">
+  <div id="reveal">
+    <div class="slides">
+      <section class="past" style="display: none;">
+        <h1>Cqrs </h1>
+        <h1>Event Sourcing</h1>
+        <h4>JugDay 2017 May 13th</h4>
+        <h4>Alessandro Dalfovo </h4>
+        <br><br>
+        <p>You can navigate with <span class="key">→</span> and <span class="key">↓</span>.
+        </p>
+        <p>
+          <small>Also <span class="key">space</span> gives an exposé mode that might break your browser.</small>
+        </p>
+      </section>
+
+      <section class="past" style="display: none;">
+        <h2>About me...</h2>
+        <p>
+          I'm a wannabe good developer
+        </p><p>
+        <img src="./CQRS-ES/avatar.png" width=100 height=100 />
+        <h4>@f48u1020</h4>
+        </p>
+      </section>
+
+      <section class="past" style="display: none;">
+        <h2>Where we were?</h2>
+        <p>We lost ourselves in an ancient Web Application born in the 2000
+        </p>
+      </section>
+
+
+      <!--
+<section>
+    <section>
+        <h1>Let's talk to some developers!</h1>
+
+    </section>
+
+    <section>
+        <blockquote>
+            Starting from a blank page is imtimidating.
+        </blockquote>
+    </section>
+    <section>
+        <blockquote>
+            We didn't start with tools
+        </blockquote>
+    </section>
+    <section>
+        <blockquote>
+            Most of us haven't realized how innefficient we are. We can <strong>want more</strong>.
+        </blockquote>
+    </section>
+    <section>
+        <blockquote>
+            Nowadays I go out of my way to learn one thing a day.
+        </blockquote>
+    </section>
+
+    <section>
+        <blockquote>
+            Some developers are
+          <a href="http://en.wikipedia.org/wiki/Integrated_Development_Environment#Attitudes_across_different_computing_platforms">
+            scared of the command line</a>. The cost of getting into a new tool seems
+          too high.
+            Dependencies are scary.
+        </blockquote>
+    </section>
+    <section>
+        <blockquote>
+            There are too many frameworks. The ramp up to them is too great; it slows you down.
+        </blockquote>
+    </section>
+    <section>
+        <blockquote>
+            To me this whole thing just feels like it needs bundling up properly with a brick ton of documentation and
+            industry leaders saying "this is GOOD"
+        </blockquote>
+    </section>
+
+
+</section>
+omg end of group -->
+
+
+
+      <section class="past" style="display: none;">
+        <h2 style="text-transform:initial">No developer wants to be spinning their wheels, or operating on mundane tasks
+        when they could instead be creating rich and compelling experiences.
+    </h2>
+        <br>
+        <h2 style="text-transform:initial">Smart developers work with smart tools, effective workflows, and wise strategies
+        for development.
+    </h2>
+      </section>
+
+      <!--
+
+
+<section>
+  <section>
+    <h1>What is Frontend Tooling?</h1>
+  </section>
+
+  <section>
+    <q>A programming tool or software development tool is a program or application that software developers use to create, debug, maintain, or otherwise support other programs and applications.</q>
+    <br><br>
+    <q><strong>Optional</strong> software that assists in development of webapps.</q>
+  </section>
+
+  <section>
+    <a href="http://mothereffingtextshadow.com/" class=image>
+      <img src="http://www.metaltoad.com/sites/default/files/mfts.png">
+    </a>
+  </section>
+
+  <section>
+    <a href="http://sassymothereffingtextshadow.com/"  class=image>
+      <img src="http://paulirish.com/i/db5290.png">
+    </a>
+  </section>
+
+</section> <! -- eo what is? group -->
+
+
+
+
+      <section class="past stack" style="display: none;">
+        <section class="present" style="display: block;">
+          <h1>The Ecosystem</h1>
+        </section>
+
+
+        <section class="future" style="display: block;">
+          <a target="_blank" href="https://plus.google.com/113127438179392830442/posts/hbjf8AiuCpt"
+            class="image">
+            <img src="./CQRS-ES/3d96a0.png" height="600"></a>
+        </section>
+
+
+
+        <section tagcloud="" class="future" style="display: block;"><span class="clouditem" style="font-size: 147.141%; color: rgb(76, 162, 179);"></span>          <span class="clouditem" style="font-size: 153.982%; color: rgb(141, 76, 179);">    sass</span>          <span class="clouditem" style="font-size: 175.757%; color: rgb(179, 76, 145);">    compass</span>          <span class="clouditem" style="font-size: 144.18%; color: rgb(76, 179, 97);">    less</span>          <span class="clouditem" style="font-size: 177.794%; color: rgb(179, 76, 167);">    stylus</span>          <span class="clouditem" style="font-size: 177.186%; color: rgb(179, 76, 172);">    markdown</span>          <span class="clouditem" style="font-size: 162.793%; color: rgb(76, 102, 179);">    haml</span>          <span class="clouditem" style="font-size: 181.518%; color: rgb(179, 122, 76);">    jade</span>          <span class="clouditem" style="font-size: 165.3%; color: rgb(179, 76, 98);">    coffeescript</span>          <span class="clouditem" style="font-size: 152.836%; color: rgb(76, 179, 141);">    Ant</span>          <span class="clouditem" style="font-size: 179.009%; color: rgb(80, 76, 179);">    make</span>          <span class="clouditem" style="font-size: 158.475%; color: rgb(76, 105, 179);">    rake</span>          <span class="clouditem" style="font-size: 176.913%; color: rgb(78, 179, 76);">    cake</span>          <span class="clouditem" style="font-size: 141.77%; color: rgb(153, 76, 179);">    bash</span>          <span class="clouditem" style="font-size: 188.347%; color: rgb(179, 85, 76);">    Image compression tools</span>          <span class="clouditem" style="font-size: 174.018%; color: rgb(179, 131, 76);">    Minification &amp; concat tooling</span>          <span class="clouditem" style="font-size: 172.08%; color: rgb(179, 76, 170);">    JSHint</span>          <span class="clouditem" style="font-size: 190.819%; color: rgb(179, 76, 151);">    JSLint</span>          <span class="clouditem" style="font-size: 199.55%; color: rgb(179, 76, 141);">    codekit</span>          <span class="clouditem" style="font-size: 166.595%; color: rgb(179, 76, 114);">    livereload</span>          <span class="clouditem" style="font-size: 192.026%; color: rgb(179, 76, 131);">    web-build</span>          <span class="clouditem" style="font-size: 148.229%; color: rgb(141, 76, 179);">    handlebars</span>          <span class="clouditem" style="font-size: 196.354%; color: rgb(76, 179, 138);">    mustache</span>          <span class="clouditem" style="font-size: 186.356%; color: rgb(76, 160, 179);">    zen coding</span>          <span class="clouditem" style="font-size: 160.364%; color: rgb(179, 136, 76);">    selenium</span>          <span class="clouditem" style="font-size: 182.921%; color: rgb(83, 76, 179);">    browserstack</span>          <span class="clouditem" style="font-size: 152.903%; color: rgb(78, 76, 179);">    mogotest</span>          <span class="clouditem" style="font-size: 157.792%; color: rgb(179, 78, 76);">    CanJS</span>          <span class="clouditem" style="font-size: 176.752%; color: rgb(136, 76, 179);">    require</span>          <span class="clouditem" style="font-size: 142.621%; color: rgb(179, 116, 76);">    sprockets</span>          <span class="clouditem" style="font-size: 198.727%; color: rgb(76, 179, 155);">    jQuery Mobile</span>          <span class="clouditem" style="font-size: 194.711%; color: rgb(76, 102, 179);">    Sencha</span>          <span class="clouditem" style="font-size: 186.895%; color: rgb(179, 76, 90);">    Ember</span>          <span class="clouditem" style="font-size: 176.635%; color: rgb(179, 151, 76);">    Selenium</span>          <span class="clouditem" style="font-size: 173.547%; color: rgb(179, 122, 76);">    Jenkins</span>          <span class="clouditem" style="font-size: 163.539%; color: rgb(76, 179, 93);">    QUnit</span>          <span class="clouditem" style="font-size: 167.858%; color: rgb(179, 122, 76);">    Jasmine</span>          <span class="clouditem" style="font-size: 171.851%; color: rgb(179, 81, 76);">    jstestdriver</span>          <span class="clouditem" style="font-size: 178.09%; color: rgb(105, 76, 179);">    plovr</span>          <span class="clouditem" style="font-size: 192.979%; color: rgb(179, 114, 76);">    Jison</span>          <span class="clouditem" style="font-size: 165.342%; color: rgb(131, 179, 76);">    Esprima</span>          <span class="clouditem" style="font-size: 153.576%; color: rgb(179, 122, 76);">    Escoma</span>          <span class="clouditem" style="font-size: 182.483%; color: rgb(76, 151, 179);"></span>          <span class="clouditem" style="font-size: 195.626%; color: rgb(179, 170, 76);">  </span></section>
+        <!--
+  <section>
+    <a href="http://clausreinke.github.com/js-tools/resources.html" class="image">
+      <img src="http://paulirish.com/i/0adbc0.png">
+    </a>
+  </section>
+-->
+      </section>
+      <!-- eo ecosystem group -->
+
+
+
+      <!-- LIFECYCLE -->
+      <!-- LIFECYCLE -->
+      <!-- LIFECYCLE -->
+      <!-- LIFECYCLE -->
+      <section class="past stack" style="display: none;">
+        <section class="present" style="display: block;">
+          <h1>The Webapp Lifecycle</h1>
+          <h2>Tooling contextualized</h2>
+        </section>
+
+        <section class="future" style="display: block;">
+          <img src="./CQRS-ES/timeline.png">
+        </section>
+      </section>
+      <!-- eo lifecycle group -->
+
+      <!--
+
+<section>
+  <section>
+    <h3>The Webapp Lifecycle:</h3>
+    <h1>Boilerplate</h1>
+  </section>
+
+  <section>
+    <h3>Various Boilerplates...</h3>
+    <div class="container"><div class="carousel">
+      <a href="http://html5boilerplate.com/" screenshot></a>
+      <a href="http://blueprintcss.org/" screenshot></a>
+      <a href="http://htmlemailboilerplate.com/" screenshot></a>
+
+      <a href="https://github.com/csnover/dojo-boilerplate" screenshot></a>
+
+      <a href="https://github.com/backbone-boilerplate/backbone-boilerplate" screenshot></a>
+ <!--
+      <a href="https://github.com/kirbysayshi/sickofit" screenshot></a>
+
+    </div></div>
+  </section>
+</section> <!-- eo lifecycle/boilerplate group -->
+
+
+
+      <section class="past stack" style="display: block;">
+        <section class="present" style="display: block;">
+          <h3>The Webapp Lifecycle:</h3>
+          <h1>Authoring Abstractions</h1>
+        </section>
+
+        <section class="future" style="display: block;">
+
+          <h3>Styling</h3>
+          <!-- HTML, CSS, and JavaScript can't evolve quickly enough to ease developer ergonomics
+    (and certainly our browser landscape doesn't update quick enough) so abstractions that improve these core languages have stepped in.
+ -->
+          <!--
+    * Sass, and its companion Compass, probably have the
+If you haven't put them to use yet, you've probably heard again and again from others
+that you should. It means dealing with the command line, which might be a new part of
+ your workflow, but everyone I know that has gone Sass hasn't gone back. A brief but
+ powerful introduction is this deck:
+ [Sass and Compass: The Future of Stylesheets Now](http://speakerdeck.com/u/imathis/p/sass-compass-the-future-of-stylesheets-now );
+  * One of my favorite aspects of Sass is being able to transition an existing
+  stylesheet over to it. The default dialect is SCSS, which is a superset of
+  the CSS syntax which means we can run our current styles through it and just
+   [refactor to more logical styles as we go](http://mattbilson.com/blog/2011/12/refactoring-with-sass-and-compass-the-css-of-your-dreams/).
+
+-->
+          <div class="container">
+            <div class="carousel" style="transform: translateZ(-300px) rotateY(0deg);">
+
+              <a href="http://sass-lang.com/" screenshot="" style="opacity: 1; transform: rotateY(0deg) translateZ(300px);"><img src="./CQRS-ES/saved_resource"></a>
+              <a href="http://compass-style.org/" screenshot="" style="opacity: 1; transform: rotateY(90deg) translateZ(300px);"><img src="./CQRS-ES/saved_resource(1)"></a>
+              <!--  <a href="http://lesscss.org/" screenshot ></a> -->
+              <a href="http://code.google.com/p/closure-stylesheets/" screenshot="" style="opacity: 1; transform: rotateY(180deg) translateZ(300px);"><img src="./CQRS-ES/saved_resource(2)"></a>
+              <a href="http://learnboost.github.com/stylus/" screenshot="" style="opacity: 1; transform: rotateY(270deg) translateZ(300px);"><img src="./CQRS-ES/saved_resource(3)"></a>
+              <!--    <a href="http://visionmedia.github.com/nib/" screenshot></a>  -->
+
+            </div>
+          </div>
+          <!--
+          * [Stylus](http://learnboost.github.com/stylus/) is the latest entrant. It was designed from a frustration
+           of the power of Sass and Less, so it's [pretty next-level](http://vimeo.com/33462524).
+           [Nib](http://visionmedia.github.com/nib/) is its CSS3 companion library.
+      -->
+          <!--
+    * Less.js started in Ruby but made the switch over to JS, an attractive
+    option if you've got a NodeJS stack already. While it is written in JavaScript,
+     it's a poor choice to use client-side in production; the performance cost on mobile is significant.
+    * [Google Closure Stylesheets]() was announced recently, but for the most
+     part, it was an open-sourcing of a tool [internally developed
+    long before](https://groups.google.com/d/msg/closure-stylesheets-discuss/mcWD3oCofl8/NoOaqcsdAhMJ)
+    these two projects. (Mozilla also made one they use for Firefox's UI)
+
+    minification (incl vendor specific), linting, RTL flipping, and CSS class renaming.
+
+-->
+        </section>
+
+
+        <section class="future" style="display: block;">
+          <h3>Markup</h3>
+
+          <div class="container">
+            <div class="carousel" style="transform: translateZ(-413px) rotateY(0deg);">
+
+              <a href="http://haml-lang.com/" screenshot="" style="opacity: 1; transform: rotateY(0deg) translateZ(413px);"><img src="./CQRS-ES/saved_resource(4)"></a>
+              <a href="http://daringfireball.net/projects/markdown/" screenshot="" class=" roll"
+                style="opacity: 1; transform: rotateY(72deg) translateZ(413px);"><span data-title="
+      
+    ">
+      <!-- <span href="http://octopress.org/">Octopress</span> -->
+                </span><img src="./CQRS-ES/saved_resource(5)"></a>
+
+              <a href="http://jade-lang.com/" screenshot="" demo="" style="opacity: 1; transform: rotateY(144deg) translateZ(413px);"><img src="./CQRS-ES/saved_resource(6)"></a>
+              <a href="http://handlebarsjs.com/" screenshot="" style="opacity: 1; transform: rotateY(216deg) translateZ(413px);"><img src="./CQRS-ES/saved_resource(7)"></a>
+              <a href="http://code.google.com/p/zen-coding/" screenshot="" demo="" style="opacity: 1; transform: rotateY(288deg) translateZ(413px);"><img src="./CQRS-ES/saved_resource(8)"></a>
+
+
+            </div>
+          </div>
+
+
+
+          <!--
+
+Matching your angle brackets visually in your text editor gets tiring sometimes.
+ Markup has been abtracted a number of times, sometimes for easier user contributions
+ (BBCode, Textile) or imperitively as in Zen Coding. They all have different uses,
+  sometimes for scaffolding a markup structure you'll fill in later, managing through
+   a template, or authoring the primary content in perpituity.
+
+
+* [Haml](http://haml-lang.com/) was crafted by the same gent who created [Sass](http://sass-lang.com/),
+       Googler Nathan Weizenbaum. Haml takes the class and ID syntax and blends it with a indent
+       specific structure to scaffold your HTML. However, don't be tempted to write your content
+        with HAML; in fact, [HAML sucks for content](http://chriseppstein.github.com/blog/2010/02/08/haml-sucks-for-content/)
+         -- for that, we'll use something different.
+   * Markdown is what this article was drafted in and has become many developers' default markup
+   abtraction for writing prose. It works very well for body content. Tooling for writing it has
+   improved as well; certainly there are many CLI compilers like [maraku](https://github.com/nex3/maruku)
+   and [kramdown](https://github.com/gettalong/kramdown) which extend the core language, but editors
+   like [Mou.app](http://mouapp.com/) and the web-based [Dillinger](http://dillinger.io/) make authoring content a dream.
+   * [Jade](http://jade-lang.com/), from the creator of Stylus, took a lot of inspiration from HAML,
+   and works great in a NodeJS stack. It also offers a [debug view](http://www.screenr.com/vV0), which
+    is invaluable when your template is misbehaving.
+   * [Handlebars](http://handlebarsjs.com/) is likely the speediest and most extensible templating
+   engine around and plugs in very nicely when you're matching JSON data up against markup.
+   * [Zen Coding](http://code.google.com/p/zen-coding/) differs from the above as it is an imperative
+    HTML scaffolding tool or "abbreviation engine". If you're working in a team and can't migrate to
+    one of the above abtractions, you'll enjoy typing `div#content>h2+p` hitting <kbd>Ctrl ,</kdb>
+    and getting `<div id="content"><h2></h2><p></p></div>` (properly formatted) expanded in your editor.
+    -->
+        </section>
+
+        <section class="future" style="display: block;">
+          <h3>Scripting</h3>
+          <div class="container">
+            <div class="carousel" style="transform: translateZ(-300px) rotateY(0deg);">
+
+              <a href="https://github.com/jashkenas/coffee-script/wiki/List-of-languages-that-compile-to-JS"
+                screenshot="" style="opacity: 1; transform: rotateY(0deg) translateZ(300px);"><img src="./CQRS-ES/List-of-languages-that-compile-to-JS"></a>
+              <a href="http://coffeescript.org/" screenshot="" style="opacity: 1; transform: rotateY(90deg) translateZ(300px);"><img src="./CQRS-ES/saved_resource(9)"></a>
+              <a href="http://www.dartlang.org/" screenshot="" style="opacity: 1; transform: rotateY(180deg) translateZ(300px);"><img src="./CQRS-ES/saved_resource(10)"></a>
+              <a href="http://code.google.com/p/traceur-compiler/" screenshot="" style="opacity: 1; transform: rotateY(270deg) translateZ(300px);"><img src="./CQRS-ES/saved_resource(11)"></a>
+
+            </div>
+          </div>
+        </section>
+      </section>
+      <!-- eo lifecycle/authoring group -->
+
+
+      <!--
+
+
+#### Simpler Script
+
+Just like jQuery improved the DOM, ECMAScript the language is ripe for improvements. [Coffeescript](http://coffeescript.org/) is the clear innovator here, and was designed to save time typing but also maintain the same readability of JavaScript. So essentially it's killing off superfluous and redundant syntax so can more clearly look at the semantics of the code itself.
+http://bolinfest.com/coffee/
+
+-->
+
+      <!--
+<section>
+  <section>
+    <h3>The Webapp Lifecycle:</h3>
+    <h1>Frameworks, Clientside Stack, Application Architecture</h1>
+  </section>
+
+  <section>
+    <h3>Looking back a few years...</h3>
+
+    <ul>
+      <li class="fragment">jQuery vs Dojo</li>
+      <li class="fragment">Topic: "Rolling Your Own"</li>
+      <li class="fragment">yayQuery Battle Royale:
+        <a href="http://alexsexton.com/?p=106">Alex Sexton</a> <!-- http://jquerysbestfriends.com/
+           vs
+        <a href="http://rmurphey.com/blog/2010/08/11/on-rolling-your-own/">Rebecca Murphey</a>
+      <li class="fragment">Charts: <a href="http://addyosmani.com/resources/toolschart/chart.pdf">jQuery App Architecture</a>
+      vs
+      <a href="http://zetafleet.com/i/4d75a4efc33d4.png">Dojo App Architecture</a>
+
+    </ul>
+  </section>
+  <section>
+
+    <a href="http://addyosmani.github.com/todomvc/" screenshot="800x800"></a>
+
+
+  </section>
+
+  <section>
+    <h1> your tools need to support your stack</h1>
+
+    <p>e.g. <a href="http://requirejs.org/docs/optimization.html">r.js</a></p>
+  </section>
+
+  <section>
+    <h3>CLI</h3>
+  </section>
+</section> <!-- eo lifecycle/frameworks group -->
+
+
+      <!--
+
+* app arch
+  * module pattern. AMD modules.
+  * dependency mgmt
+  * app frameworks
+      jQuery Mobile
+      Sencha
+      jQuery UI
+      Sproutcore
+
+  -->
+
+      <section class="past stack" style="display: block;">
+        <section class="present" style="display: block;">
+          <h3>The Webapp Lifecycle:</h3>
+          <h1>Iteration Workflow</h1>
+        </section>
+
+        <!--
+  <section>
+    <h3>Basics</h3>
+    <pre><code>
+# usage:
+# $ chrome index.html
+function chrome() {
+    open $@ --args --allow-file-access-from-files
+}
+
+# usage:
+# $ server
+alias server='open http://localhost:8000 && python -m SimpleHTTPServer'
+
+    </code></pre>
+  </section>
+-->
+
+        <!--
+  <section>
+    <h3>Iteration Automators</h3>
+
+    <div class="container"><div class="carousel">
+
+      <img src="http://paulirish.com/i/4005a0.png" demo>
+      <a href="http://livereload.com/" screenshot demo></a>
+      <a href="http://incident57.com/codekit/" screenshot></a>
+      <a href="http://addyosmani.com/blog/autosave-changes-chrome-dev-tools/" screenshot demo></a>
+
+
+    </div></div>
+
+  </section>
+-->
+        <!--
+  <section>
+    <h3>Editors and IDEs</h3>
+
+    <div class="container"><div class="carousel">
+
+
+    <a href="http://net.tutsplus.com/tutorials/tools-and-tips/sublime-text-2-tips-and-tricks/" screenshot></a>
+    <a href="http://net.tutsplus.com/tutorials/tools-and-tips/essential-textmate-shortcuts-tips-and-techniques/" screenshot></a>
+    <a href="http://aptana.com/products/studio3" screenshot></a>
+    <a href="http://www.jetbrains.com/webstorm/features/" screenshot></a>
+
+    </div></div>
+    <!--   it's got built-in support for Coffeescript, JSHint, jQuery, YUI, JSTestDriver, Zen Coding and plenty more. -->
+        <!-- github integration,, completion,  debugging, hunting leaks
+  </section>
+ -->
+
+
+        <section class="future" style="display: block;">
+          <h3>Browser Dev Tools</h3>
+          <div class="container">
+            <div class="carousel" style="transform: translateZ(-173px) rotateY(0deg);">
+
+              <a href="http://code.google.com/chrome/mobile/docs/debugging.html" demo="" screenshot=""
+                style="opacity: 1; transform: rotateY(0deg) translateZ(173px);"><img src="./CQRS-ES/debugging.html"></a>
+              <a href="http://code.google.com/chrome/devtools/" screenshot="" demo="" style="opacity: 1; transform: rotateY(120deg) translateZ(173px);"><img src="./CQRS-ES/saved_resource(12)"></a>
+
+
+              <!--        <a href="http://html5rocks.com/en/slides/" screenshot></a> -->
+              <!--
+        <a href="http://benvanik.github.com/WebGL-Inspector/" screenshot></a>
+        <a href="http://phonegap.github.com/weinre/" screenshot></a>
+        <a href="http://www.iwebinspector.com/" screenshot></a>
+        -->
+              <a href="http://code.google.com/chrome/mobile/docs/debugging.html" demo="" screenshot=""
+                style="opacity: 1; transform: rotateY(240deg) translateZ(173px);"><img src="./CQRS-ES/debugging.html"></a>
+
+
+            </div>
+          </div>
+
+        </section>
+
+
+
+
+        <section class="future" style="display: block;">
+          <h3>Source Maps</h3>
+          <div class="container">
+            <div class="carousel" style="transform: translateZ(-173px) rotateY(0deg);">
+
+              <a href="http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/" screenshot=""
+                style="opacity: 1; transform: rotateY(0deg) translateZ(173px);"><img src="./CQRS-ES/saved_resource(13)"></a>
+              <a href="http://dl.dropbox.com/u/39519/sourcemapapp/index.html" screenshot="" style="opacity: 1; transform: rotateY(120deg) translateZ(173px);"><img src="./CQRS-ES/index.html"></a>
+              <a href="http://www.thecssninja.com/demo/source_mapping/ES6/" screenshot="" style="opacity: 1; transform: rotateY(240deg) translateZ(173px);"><img src="./CQRS-ES/saved_resource(14)"></a>
+
+            </div>
+          </div>
+        </section>
+
+
+
+        <section class="future" style="display: block;">
+          <h3>Linting</h3>
+          <div class="container">
+            <div class="carousel" style="transform: translateZ(-173px) rotateY(0deg);">
+
+              <a href="http://www.jshint.com/" screenshot="" style="opacity: 1; transform: rotateY(0deg) translateZ(173px);"><img src="./CQRS-ES/saved_resource(15)"></a>
+              <a href="http://code.google.com/closure/utilities/" screenshot="" style="opacity: 1; transform: rotateY(120deg) translateZ(173px);"><img src="./CQRS-ES/saved_resource(16)"></a>
+              <a href="http://code.google.com/p/closure-stylesheets/" screenshot="" style="opacity: 1; transform: rotateY(240deg) translateZ(173px);"><img src="./CQRS-ES/saved_resource(2)"></a>
+
+            </div>
+          </div>
+        </section>
+
+
+        <section class="future" style="display: none;">
+          <h3>Linting / Testing in context</h3>
+          <a href="https://plus.google.com/113127438179392830442/posts/Z1LpEhfKTqo" class="image">
+            <img src="./CQRS-ES/e2ce50.png">
+          </a>
+        </section>
+
+
+
+        <section class="future" style="display: none;">
+          <h3>ECMAScript Tooling</h3>
+          <div class="container">
+            <div class="carousel" style="transform: translateZ(-413px) rotateY(0deg);">
+              <div style="opacity: 1; transform: rotateY(0deg) translateZ(413px);">
+                <a href="http://esprima.org/demo/parse.html"><img src="./CQRS-ES/esprima"></a>
+                <a href="http://ariya.ofilabs.com/2012/03/most-popular-javascript-keywords.html"
+                  class=" roll"><span data-title="1">1</span></a>
+                <a class=" roll"><span data-title="
+      ">
+      </span></a>
+              </div>
+              <a class=" roll" style="opacity: 1; transform: rotateY(72deg) translateZ(413px);"><span data-title="
+      ">
+      </span></a>
+              <a href="http://clausreinke.github.com/js-tools/resources.html" screenshot="" style="opacity: 1; transform: rotateY(144deg) translateZ(413px);"><img src="./CQRS-ES/resources.html"></a>
+              <a href="http://zaach.github.com/jison/" screenshot="" style="opacity: 1; transform: rotateY(216deg) translateZ(413px);"><img src="./CQRS-ES/saved_resource(17)"></a>
+              <a href="http://handlebarsjs.com/" screenshot="" style="opacity: 1; transform: rotateY(288deg) translateZ(413px);"><img src="./CQRS-ES/saved_resource(7)"></a>
+
+            </div>
+          </div>
+        </section>
+
+        <section class="future" style="display: none;">
+          <h3>Testing</h3>
+          <h4>visual, css regression, js unit, js integration</h4>
+
+          <div class="container">
+            <div class="carousel" style="transform: translateZ(-520px) rotateY(0deg);">
+              <a href="http://www.browserstack.com/" screenshot="" style="opacity: 1; transform: rotateY(0deg) translateZ(520px);"><img src="./CQRS-ES/saved_resource(18)"></a>
+              <a href="http://mogotest.com/" screenshot="" style="opacity: 1; transform: rotateY(60deg) translateZ(520px);"><img src="./CQRS-ES/saved_resource(19)"></a>
+              <a href="http://docs.jquery.com/QUnit" screenshot="" style="opacity: 1; transform: rotateY(120deg) translateZ(520px);"><img src="./CQRS-ES/QUnit"></a>
+              <a href="http://pivotal.github.com/jasmine/" screenshot="" style="opacity: 1; transform: rotateY(180deg) translateZ(520px);"><img src="./CQRS-ES/saved_resource(20)"></a>
+              <a href="http://code.google.com/p/js-test-driver/" screenshot="" style="opacity: 1; transform: rotateY(240deg) translateZ(520px);"><img src="./CQRS-ES/saved_resource(21)"></a>
+              <a href="http://testling.com/" demo="" class="image" style="opacity: 1; transform: rotateY(300deg) translateZ(520px);">
+                <img src="./CQRS-ES/saved_resource(22)">
+              </a>
+              <!--
+    <a href="http://seleniumhq.org/projects/" screenshot></a>
+    <a href="http://watirwebdriver.com/" screenshot></a>
+-->
+
+            </div>
+          </div>
+        </section>
+
+
+      </section>
+      <!-- eo lifecycle/iteration group -->
+
+      <!--
+<section>
+  <section>
+    <h3>The Webapp Lifecycle:</h3>
+    <h1>Performance Tuning</h1>
+  </section>
+
+  <section tagcloud>
+    FPS Counter
+    Composited render layer borders
+    <code style="white-space: nowrap;">--show-paint-rects</code>
+    Timeline View
+    OS X Instruments app
+    about:tracing
+    about:gpu
+  </section>
+
+  <section>
+    <h3>CPU and Memory Profiling</h3>
+
+    <div class="container"><div class="carousel">
+      <a href="http://code.google.com/chrome/devtools/docs/cpu-profiling.html" screenshot></a>
+      <a href="http://gent.ilcore.com/2011/08/finding-memory-leaks.html" screenshot></a>
+      <a href="http://code.google.com/chrome/devtools/docs/heap-profiling.html" screenshot></a>
+
+    </div></div>
+  </section>
+
+</section> eo lifecycle/perf group -->
+
+
+
+      <section class="past stack" style="display: block;">
+        <section class="past" style="display: block;">
+          <h3>The Webapp Lifecycle:</h3>
+          <h1>Build + Optimization</h1>
+        </section>
+
+        <section class="past" style="display: block;">
+          <h3>So many best practices...</h3>
+          <p tagcloud="" style="margin-top:0"><span class="clouditem" style="font-size: 140.637%; color: rgb(100, 179, 76);"></span>            <span class="clouditem" style="font-size: 151.45%; color: rgb(179, 110, 76);">combine and minify css and js</span>            <span class="clouditem" style="font-size: 158.115%; color: rgb(76, 76, 179);">inline @imports</span>            <span class="clouditem" style="font-size: 199.265%; color: rgb(179, 76, 155);">inline small images as data-uri</span>            <span class="clouditem" style="font-size: 189.064%; color: rgb(83, 76, 179);">remove console.log</span>            <span class="clouditem" style="font-size: 160.804%; color: rgb(179, 160, 76);">remove unused CSS</span>            <span class="clouditem" style="font-size: 153.618%; color: rgb(158, 76, 179);">cache manifest creation</span>            <span class="clouditem" style="font-size: 149.467%; color: rgb(155, 179, 76);">asset revving</span>            <span class="clouditem" style="font-size: 151.553%; color: rgb(110, 179, 76);">dead code elimination</span>            <span class="clouditem" style="font-size: 140.253%; color: rgb(76, 179, 107);">image compression</span>            <span class="clouditem" style="font-size: 141.256%; color: rgb(138, 179, 76);">video/audio transcoding</span>            <span class="clouditem" style="font-size: 183.312%; color: rgb(179, 126, 76);">    </span></p>
+        </section>
+
+        <!--
+  <section>
+    <h3>Tools do the work for us</h3>
+
+    <div class="container"><div class="carousel">
+
+    <a href="http://code.google.com/closure/compiler/" screenshot></a>
+    <a href="https://github.com/mishoo/UglifyJS" screenshot></a>
+    <a href="http://code.google.com/p/htmlcompressor/" screenshot></a>
+    <a href="http://www.codedread.com/scour/" screenshot></a>
+
+    <a href="http://imageoptim.pornel.net/" screenshot></a>
+    <a href="https://github.com/rflynn/imgmin" screenshot></a>
+
+    </div></div>
+
+  </section>
+-->
+
+        <section class="past" style="display: block;">
+          <h3>Automating the tools</h3>
+          <ul>
+            <li>Ant / Make / Rake / Jake / Cake
+            </li>
+            <li>Bash / Python
+            </li>
+            <li>
+              <a href="http://html5boilerplate.com/docs/Build-script/" class=" roll"><span data-title="H5BP build script">H5BP build script</span></a>              (now in Ant, Node, and Rake)
+            </li>
+            <li>
+              <a href="https://github.com/tivac/web-build" class=" roll"><span data-title="web-build">web-build</span></a>
+              <!--            <li>
+          <a href="https://github.com/balupton/buildr.npm">buildr</a>  -->
+            </li>
+            <li>
+              <a href="https://github.com/cowboy/grunt" class=" roll"><span data-title="grunt">grunt</span></a>
+            </li>
+          </ul>
+        </section>
+        <section class="present" style="display: block;">
+          <h2>... and Deployment</h2>
+
+          <ul>
+            <li>Jenkins,
+              <a href="http://travis-ci.org/#!/Modernizr/Modernizr" class=" roll"><span data-title="Travis">Travis</span></a>              for CI</li>
+            <li>Continuous deployment</li>
+            <li>Aggregated clientside error reporting</li>
+
+            <br><br>
+
+            <blockquote>
+              Deployment is an art. And the style in which you deploy impacts your company culture
+              more than you think. <a href="http://warpspire.com/posts/ops-art/"
+                class=" roll"><span data-title="Deploy with style">Deploy with style</span></a>
+            </blockquote>
+          </ul>
+        </section>
+      </section>
+      <!-- eo lifecycle/build group -->
+
+      <section class="present stack" style="display: block;">
+        <section class="present" style="display: block;">
+          <h2>Future Tooling</h2>
+        </section>
+        <section class="future" style="display: block;">
+
+          <div class="container">
+            <div class="carousel" style="transform: translateZ(-300px) rotateY(0deg);">
+
+
+              <a href="https://github.com/Toura/mulberry/wiki/Command-Line-Interface" screenshot=""
+                style="opacity: 1; transform: rotateY(0deg) translateZ(300px);"><img src="./CQRS-ES/Command-Line-Interface"></a>
+              <a href="https://github.com/kriszyp/ua-optimized" screenshot="" style="opacity: 1; transform: rotateY(90deg) translateZ(300px);"><img src="./CQRS-ES/ua-optimized"></a>
+              <a href="https://github.com/jensarps/AMD-feature" screenshot="" style="opacity: 1; transform: rotateY(180deg) translateZ(300px);"><img src="./CQRS-ES/AMD-feature"></a>
+              <a href="http://bolinfest.com/coffee/" screenshot="" style="opacity: 1; transform: rotateY(270deg) translateZ(300px);"><img src="./CQRS-ES/saved_resource(23)"></a>
+
+            </div>
+          </div>
+        </section>
+      </section>
+
+
+      <!-- end of LIFECYCLE -->
+      <!-- end of LIFECYCLE -->
+      <!-- end of LIFECYCLE -->
+      <!-- end of LIFECYCLE -->
+      <!-- end of LIFECYCLE -->
+
+      <!--
+<section>
+  <h1>Tooling Antipatterns</h1>
+  <ul>
+    <li class=fragment><a href="http://css3please.com/">web-based tools</a> that require >1 visit/project
+    <li class=fragment><a href="http://pngmini.com/">GUIs</a>?
+  </ul>
+</section>
+
+-->
+
+
+      <section class="future stack" style="display: block;">
+        <section class="present" style="display: block;">
+          <h1>In conclusion...</h1>
+        </section>
+        <section class="future" style="display: block;">
+          <h4>Web app development is a bumpy road.</h4>
+          <img src="./CQRS-ES/tarkeshwar-mahadev-temple_bumpy-road21.jpg"
+            width="800">
+
+        </section>
+        <section class="future" style="display: block;">
+          <h2>These tools give your development vehicle neccessary suspension. </h2>
+          <h2>Embrace dependencies.</h2>
+
+        </section>
+      </section>
+
+      <section class="future" style="display: block;">
+        <h1>♥⏝♥</h1>
+
+        <h3 class="inverted">thank you.</h3>
+
+
+        <img src="./CQRS-ES/catonbike.png" style="
+      background: none;
+border: none;
+box-shadow: none;
+margin:0;
+height: 400px;">
+
+      </section>
+
+    </div>
+
+    <!-- The navigational controls UI -->
+    <aside class="controls" style="display: block;">
+      <a class="left                                    enabled" href="https://dl.dropboxusercontent.com/u/39519/talks/jsconf-tools/index.html#">◄</a>
+      <a class="right                                 enabled" href="https://dl.dropboxusercontent.com/u/39519/talks/jsconf-tools/index.html#">►</a>
+      <a class="up        " href="https://dl.dropboxusercontent.com/u/39519/talks/jsconf-tools/index.html#">▲</a>
+      <a class="down                      enabled" href="https://dl.dropboxusercontent.com/u/39519/talks/jsconf-tools/index.html#">▼</a>
+
+
+
+    </aside>
+
+
+
+
+
+
+
+
+
+    <!-- Displays presentation progress, max value changes via JS to reflect # of slides -->
+    <div class="progress" style="display: block;"><span style="width: 1309.09px;"></span></div>
+
+  </div>
+
+  <script src="./CQRS-ES/reveal.js"></script>
+  <script src="./CQRS-ES/highlight.js"></script>
+
+  <script>
+    // Parse the query string into a key/value object
+    var query = {};
+
+
+    Reveal.initialize(
+    {
+      // Display controls in the bottom right corner
+      controls: true,
+
+      // Display a presentation progress bar
+      progress: true,
+
+      // If true; each slide will be pushed to the browser history
+      history: true,
+
+      // Apply a 3D roll to links on hover
+      rollingLinks: true,
+
+      // UI style
+      theme: query.theme || 'default', // default/neon
+
+      // Transition style
+      transition: query.transition || 'default' // default/cube/page/concave/linear(2d)
+    });
+
+    hljs.initHighlightingOnLoad();
+  </script>
+
+  <script src="./CQRS-ES/md5.js"></script>
+
+  <script src="./CQRS-ES/setup.js"></script>
+
+  <link rel="stylesheet" href="./CQRS-ES/carousel.css">
+  <script src="./CQRS-ES/carousel.js"></script>
+</body>
+
+</html>
